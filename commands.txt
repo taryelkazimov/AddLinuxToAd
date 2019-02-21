@@ -1,0 +1,42 @@
+_______________________________________________________
+#######:Join Linux Join Centos to Active Directory
+
+yum install realmd sssd oddjob oddjob-mkhomedir adcli samba-common samba-common-tools
+
+#Configure Chronty to use AD as NTP server
+
+yum install chrony
+
+# DISCOVER DOMAIN
+
+realm discover contoso.com
+
+# jOINT CENTOS TO DOMAIN
+
+realm --verbose join -U 'administrator' dc01.contoso.com
+
+# Edit SSSD conf
+
+/etc/sssd/sssd.conf
+
+# change like this
+
+use_fully_qualified_names = False
+
+#How to permit only one Active Directory group to logon
+
+realm permit -g centos01@contoso.com
+
+#How to give sudo permissions to an Active Directory group
+
+visudo
+
+%centos01@contoso.com ALL=(ALL) ALL
+
+Or
+
+%contoso\\centos01 ALL=(ALL) ALL
+
+# Restart SSSD
+
+systemctl enable sssd.service && systemctl restart sssd
