@@ -1,11 +1,10 @@
+1. Configure DNS
+2. Configure hostname as FQDN
+3. Configure NTP
 _______________________________________________________
 #######:Join Linux Join Centos to Active Directory
 
 yum install realmd sssd oddjob oddjob-mkhomedir adcli samba-common samba-common-tools
-
-#Configure Chronty to use AD as NTP server
-
-yum install chrony
 
 # DISCOVER DOMAIN
 
