@@ -18,6 +18,11 @@ realm discover contoso.com
 
 realm --verbose join -U 'administrator' dc01.contoso.com
 
+# TO Leave domain if you need.
+
+#realm leave ad.example.com
+#realm leave ad.example.com -U 'AD.EXAMPLE.COM\user'
+
 # Edit SSSD conf
 
 /etc/sssd/sssd.conf
