@@ -1,0 +1,75 @@
+---
+## This playbook installs and configures AD authentication
+
+- name: Install and configure AD authentication
+  hosts: all
+  gather_facts: no
+  become: yes
+  become_method: sudo
+  vars_prompt:
+    - name: "bind_password"
+      prompt: "Password for ulduz@contoso.com"
+      private: yes
+
+  tasks:
+    - name: Install the required packages
+      yum:
+        name: realmd,sssd,oddjob,oddjob-mkhomedir,adcli,samba-common,samba-common-tools,ntpdate,ntp,python-pip
+        state: present
+      notify:
+        - restart realmd
+
+    - name: Install pexpect using pip
+      pip:
+        name: pexpect
+
+    - name: Checking to see if system is already joined to AD
+      command: /bin/bash -c "/usr/sbin/realm list"
+      register: realm_list_results
+      tags: [ 'AD' ]
+
+    - name: Debug realm_list_results
+      debug:
+        msg: "{{ realm_list_results.stdout }}"
+      tags: [ 'debug', 'never' ]
+
+    - name: Join system to AD and add the computer object in the Linux OU
+      ignore_errors: True
+      expect:
+        command: /bin/bash -c "/usr/sbin/realm join --user=ulduz@contoso.com --computer-ou=OU=Servers,DC=CONTOSO,DC=COM CONTOSO.COM"
+        responses:
+          Password for *: "{{ bind_password }}"
+      when: realm_list_results.stdout == ""
+      tags: [ 'AD' ]
+
+    - name: "Modify sssd.conf file"
+      replace:
+        path: /etc/sssd/sssd.conf
+        regexp: 'use_fully_qualified_names = True'
+        replace: 'use_fully_qualified_names = False'
+
+    - name: Allow the LinuxAdmins AD group to logon to the system
+      command: /bin/bash -c "/usr/sbin/realm permit -g LinuxAdmins@contoso.com"
+
+    - name: Add the LinuxAdmins AD Group to sudoers
+      lineinfile:
+        dest: /etc/sudoers
+        line: '%LinuxAdmins@contoso.com        ALL=(ALL)       ALL'
+        insertafter: '^## Allows people in group wheel to run all commands'
+
+    - name: Allow domain group members to run commans without password promt
+      lineinfile:
+        dest: /etc/sudoers
+        line: '%LinuxAdmins@contoso.com        ALL=(ALL)       NOPASSWD: ALL'
+        insertafter: '^## Same thing without a password'
+
+  handlers:
+    - name: restart realmd
+      service:
+        name: realmd
+        state: restarted
+
+    - name: restart sssd
+      service:
+        name: sssd
+        state: restarted
