@@ -3,7 +3,7 @@
 2. Configure hostname as FQDN
 3. Configure NTP
 _______________________________________________________
-#######: Join Centos to Active Directory
+## Join Centos to Active Directory
 
 yum install realmd sssd oddjob oddjob-mkhomedir adcli samba-common samba-common-tools
 
