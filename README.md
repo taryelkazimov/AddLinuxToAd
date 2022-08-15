@@ -9,7 +9,7 @@
 
 # ONELINER
 
-yum install realmd sssd oddjob oddjob-mkhomedir adcli samba-common samba-common-tools && realm join -U administrator contoso.com && sed -i '/use_fully_qualified_names = True/c\use_fully_qualified_names = False' /etc/sssd/sssd.conf && realm permit -g centos01@contoso.com && sed -i '/^## Same thing without a password/a %centos01@contoso.com  ALL=(ALL)       NOPASSWD: ALL' /etc/sudoers >> /etc/sudoers && systemctl enable sssd.service && systemctl restart sssd
+yum -y install realmd sssd oddjob oddjob-mkhomedir adcli samba-common samba-common-tools && realm join -U administrator contoso.com && sed -i '/use_fully_qualified_names = True/c\use_fully_qualified_names = False' /etc/sssd/sssd.conf && realm permit -g centos01@contoso.com && sed -i '/^## Same thing without a password/a %centos01@contoso.com  ALL=(ALL)       NOPASSWD: ALL' /etc/sudoers >> /etc/sudoers && systemctl enable sssd.service && systemctl restart sssd
 
 
 
